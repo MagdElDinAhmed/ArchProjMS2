@@ -33,7 +33,7 @@ output [6:0] Seven_Seg_Out
     wire [31:0] Instruction, RegReadOut1, RegReadOut2, Immediate
     ,ALU_in_2, ALU_Out, RAM_data_out, True_RAM_data_out, Immediate_Shifted, writeData;
     wire Branch,MemRead,MemtoReg,MemWrite,ALUSrc,RegWrite;
-    wire [1:0] ALUOp;
+    wire [1:0] ALUOp, SaveMethod;
     wire [3:0] ALUSel;
     integer i;
     wire [31:0] PC_in,Unbranched_PC, Branched_PC, PC_out;
@@ -87,7 +87,8 @@ output [6:0] Seven_Seg_Out
     .MemWrite(MemWrite),
     .ALUSrc(ALUSrc),
     .RegWrite(RegWrite),
-    .ALUOp(ALUOp)
+    .ALUOp(ALUOp),
+    .SaveMethod(SaveMethod)
     );
     
      NBit_RegFile #(.N(32)) RF(
@@ -132,7 +133,7 @@ output [6:0] Seven_Seg_Out
     );
     
     DataMem RAM
-    (.clk(clk), .MemRead(MemRead), .MemWrite(MemWrite),
+    (.clk(clk), .MemRead(MemRead), .MemWrite(MemWrite), .SaveMethod(SaveMethod),
     .addr(ALU_Out), .data_in(RegReadOut2), .data_out(RAM_data_out));
     
     LoadHandler Loader

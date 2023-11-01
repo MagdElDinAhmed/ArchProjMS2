@@ -28,13 +28,22 @@ module DataMem
  
  initial begin
     mem[0]=8'd1;
-    mem[1]=8'd5;
-    mem[2]=8'd25;
+    mem[1]=8'b0;
+    mem[2]=8'b0;
+    mem[3]=8'b0;
+    mem[4]=8'd5;
+    mem[5]=8'b0;
+    mem[6]=8'b0;
+    mem[7]=8'b0;
+    mem[8]=8'd25;
+    mem[9]=8'b0;
+    mem[10]=8'b0;
+    mem[11]=8'b0;
  end
  
  always @(*) begin
     if (MemRead==1'b1)
-        data_out = mem[addr];
+        data_out = {mem[addr+3],mem[addr+2],mem[addr+1],mem[addr]};
  end
  
  always @(posedge clk) begin
