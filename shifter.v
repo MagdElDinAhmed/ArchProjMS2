@@ -31,16 +31,16 @@ module shifter(
     always@(*) begin
         case(type)
             //SLL
-            00: begin
+            2b'00: begin
                 r = a<<shamt;
             end
             //SRL
-            01: begin
+            2b'01: begin
                 r = a>>shamt;
             end
             //SRA
-            10: begin
-                r = $signed(a)>>>shamt;
+            2'b10: begin
+                r = a>>>shamt;
             end
         endcase
     end
