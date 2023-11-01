@@ -34,6 +34,14 @@
 `define     BR_BLTU         3'b110
 `define     BR_BGEU         3'b111
 
+
+`define     LB              3'b000
+`define     LH              3'b001
+`define     LW              3'b010
+`define     LBU             3'b100
+`define     LHU             3'b101
+
+
 `define     OPCODE          IR[`IR_opcode]
 
 `define     ALU_ADD         4'b00_00

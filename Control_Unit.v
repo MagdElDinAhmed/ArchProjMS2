@@ -65,6 +65,15 @@ output reg [1:0] ALUOp
                     ALUSrc = 1'b0;
                     RegWrite = 1'b0;
                 end
+                `OPCODE_Arith_I: begin //I-type instructions
+                 	Branch = 1'b0;
+                    MemRead = 1'b0;
+                    ALUOp = 2'b10; //what should i make this 
+                    MemWrite = 1'b0; 
+                    ALUSrc = 1'b1; //check if this is the right signal
+                    RegWrite = 1'b1;
+                  
+                end
             endcase
         end
 endmodule

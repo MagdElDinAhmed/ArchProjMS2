@@ -33,7 +33,8 @@ module InstMem (input [7:0] addr, output [31:0] data_out);
      mem[1]= 32'h0x00402103 ;
      //add x3,x0,x0 makes x3 = 0
      //8
-     mem[2] = 32'h0x000001b3;
+     mem[2] = 32'h0x001111b3;
+     //mem[2] = 32'h0x000001b3;
      //add x4,x0,x0 makes x4 = 0
      //12
      mem[3] = 32'h0x00000233;
