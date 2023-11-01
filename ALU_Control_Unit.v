@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+`include "defines.v"
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -28,30 +29,48 @@ output reg [3:0] ALUSel
         always@(*) begin
             case (ALUOp)
                 2'b00: begin
-                    ALUSel = 4'b0010;
+                    ALUSel = `ALU_ADD;
                 end
                 
                 2'b01: begin
-                    ALUSel = 4'b0110;
+                    ALUSel = `ALU_SUB;
                 end
                 
                 2'b10: begin
-                    case (Instruction[14:12])
-                        3'b000: begin
+                    case (Instruction[`IR_funct3])
+                        `F3_ADD: begin
                             if (Instruction[30] == 1'b0)
-                                ALUSel = 4'b0010;
+                                ALUSel = `ALU_ADD;
                             else
-                                ALUSel = 4'b0110;
+                                ALUSel = `ALU_SUB;
                         end
                         
-                        3'b111: begin
+                        `F3_AND: begin
                             if (Instruction[30] == 1'b0)
-                                ALUSel = 4'b0000;
+                                ALUSel = `ALU_AND;
                         end
                         
-                        3'b110: begin
+                        `F3_OR: begin
                             if (Instruction[30] == 1'b0)
-                                ALUSel = 4'b0001;
+                                ALUSel = `ALU_OR;
+                        end
+                        `F3_XOR: begin
+                            ALUSel = `ALU_OR;
+                        end
+                        `F3_SLL: begin
+                            ALUSel = `ALU_SLL;
+                        end
+                        `F3_SRL: begin
+                            if (Instruction[30] == 1'b0)
+                                ALUSel = `ALU_SRL;
+                            else
+                                ALUSel = `ALU_SRA;
+                        end
+                        `F3_SLT: begin
+                            ALUSel = `ALU_SLT;
+                        end
+                        `F3_SLTU: begin
+                            ALUSel = `ALU_SLTU;
                         end
                         default: ALUSel = 4'b0000;
                     endcase

@@ -31,17 +31,18 @@ module shifter(
     always@(*) begin
         case(type)
             //SLL
-            2b'00: begin
-                r = a<<shamt;
+            2'b00: begin
+                r = a>>shamt;
             end
             //SRL
-            2b'01: begin
-                r = a>>shamt;
+            2'b01: begin
+                r = a<<shamt;
             end
             //SRA
             2'b10: begin
                 r = a>>>shamt;
             end
+            default: r = a;
         endcase
     end
 endmodule

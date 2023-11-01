@@ -55,8 +55,8 @@ output ZeroFlag, CarryFlag, OverflowFlag, SignFlag
                4'b01_01:  C = A & B;
                4'b01_11:  C = A ^ B;
                // shift
-               4'b10_00:  C=sh; //SLL
-               4'b10_01:  C=sh; //SRL
+               4'b10_00:  C=sh; //SRL
+               4'b10_01:  C=sh; //SLL
                4'b10_10:  C=sh; //SRA
                // slt & sltu
                4'b11_01:  C = {31'b0,(SignFlag != OverflowFlag)}; //remember these 2 for bge and blt

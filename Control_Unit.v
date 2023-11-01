@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+`include "defines.v"
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -26,8 +27,8 @@ output reg Branch, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite,
 output reg [1:0] ALUOp
     );
         always@(*) begin
-            case (Instruction[6:2])
-                5'b01100: begin
+            case (Instruction[`IR_opcode])
+                `OPCODE_Arith_R: begin
                     Branch = 1'b0;
                     MemRead = 1'b0;
                     MemtoReg = 1'b0;
@@ -37,7 +38,7 @@ output reg [1:0] ALUOp
                     RegWrite = 1'b1;
                 end
                 
-                5'b00000: begin
+                `OPCODE_Load: begin
                     Branch = 1'b0;
                     MemRead = 1'b1;
                     MemtoReg = 1'b1;
@@ -47,7 +48,7 @@ output reg [1:0] ALUOp
                     RegWrite = 1'b1;
                 end
                 
-                5'b01000: begin
+                `OPCODE_Store: begin
                     Branch = 1'b0;
                     MemRead = 1'b0;
                     ALUOp = 2'b00;
@@ -56,7 +57,7 @@ output reg [1:0] ALUOp
                     RegWrite = 1'b0;
                 end
                 
-                5'b11000: begin
+                `OPCODE_Branch: begin
                     Branch = 1'b1;
                     MemRead = 1'b0;
                     ALUOp = 2'b01;
