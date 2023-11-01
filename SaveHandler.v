@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+`include "defines.v"
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -22,6 +23,19 @@
 
 module SaveHandler(
     input fun3,
-    output [1:0] SaveMethod
+    output reg [1:0] SaveMethod
     );
+    always@(*) begin
+        case(fun3)
+            `SB: begin
+                SaveMethod = 2'b00;
+            end
+            `SH: begin
+                SaveMethod = 2'b01;
+            end
+            `SB: begin
+                SaveMethod = 2'b10;
+            end
+        endcase
+    end
 endmodule

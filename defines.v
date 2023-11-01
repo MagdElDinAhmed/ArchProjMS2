@@ -41,6 +41,10 @@
 `define     LBU             3'b100
 `define     LHU             3'b101
 
+`define     SB              3'b000
+`define     SH              3'b001
+`define     SW              3'b010
+
 
 `define     OPCODE          IR[`IR_opcode]
 

@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+`include "defines.v"
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -30,7 +31,7 @@ output [6:0] Seven_Seg_Out
     );
     wire [5:0] Inst_addr;
     wire [31:0] Instruction, RegReadOut1, RegReadOut2, Immediate
-    ,ALU_in_2, ALU_Out, RAM_data_out, Immediate_Shifted, writeData;
+    ,ALU_in_2, ALU_Out, RAM_data_out, True_RAM_data_out, Immediate_Shifted, writeData;
     wire Branch,MemRead,MemtoReg,MemWrite,ALUSrc,RegWrite;
     wire [1:0] ALUOp;
     wire [3:0] ALUSel;
@@ -132,11 +133,14 @@ output [6:0] Seven_Seg_Out
     
     DataMem RAM
     (.clk(clk), .MemRead(MemRead), .MemWrite(MemWrite),
-    .addr(ALU_Out/4), .data_in(RegReadOut2), .data_out(RAM_data_out));
+    .addr(ALU_Out), .data_in(RegReadOut2), .data_out(RAM_data_out));
+    
+    LoadHandler Loader
+    (Instruction[`IR_funct3],RAM_data_out,True_RAM_data_out);
     
     NBit_MUX2x1 #(.N(32))MUX_RAM(
         .A(ALU_Out),
-        .B(RAM_data_out),
+        .B(True_RAM_data_out),
         .sel(MemtoReg),
         .Y(writeData)
     );
