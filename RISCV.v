@@ -31,12 +31,12 @@ output [6:0] Seven_Seg_Out
     );
     wire [5:0] Inst_addr;
     wire [31:0] Instruction, RegReadOut1, RegReadOut2, Immediate
-    ,ALU_in_2, ALU_Out, RAM_data_out, True_RAM_data_out, Immediate_Shifted, writeData;
-    wire Branch,MemRead,MemtoReg,MemWrite,ALUSrc,RegWrite;
+    ,ALU_in_2, ALU_Out, RAM_data_out, True_RAM_data_out, Immediate_Shifted, writeData,outputMuxRF;
+    wire Branch,MemRead,MemtoReg,MemWrite,ALUSrc,RegWrite,MuxRFSel,AUIPCSel;
     wire [1:0] ALUOp, SaveMethod;
     wire [3:0] ALUSel;
     integer i;
-    wire [31:0] PC_in,Unbranched_PC, Branched_PC, PC_out;
+    wire [31:0] PC_in,Unbranched_PC, Branched_PC, PC_out,MuxRF2Out;
     reg [12:0] Seven_Seg_Num;
     
     wire ZeroFlag, CarryFlag, OverflowFlag, SignFlag;
@@ -88,14 +88,28 @@ output [6:0] Seven_Seg_Out
     .ALUSrc(ALUSrc),
     .RegWrite(RegWrite),
     .ALUOp(ALUOp),
+    .MuxRFSel(MuxRFSel), //Select line for MuxRF1
+    .AUIPCSel(AUIPCSel), //this is the Selectline for the MuxRF2
     .SaveMethod(SaveMethod)
     );
-    
+        //ADDED here by AF
+     NBIT_MUX2x1 #(.N(32))MUX_RF2(
+         .A(Unbranched_PC),
+         .B(Branched_PC),
+         .sel(AUIPCSel),
+         .Y(MuxRF2Out)
+         );
+    NBIT_MUX2x1 #(.N(32))MUX_RF(
+    .A(MuxRF2Out),//MAKE THIS THE output of MUXRF2 A=0
+    .B(writeData),// from mem mux to reg  B=1
+    .sel(MuxRFSel), //final output here Y should go into 
+    .Y(outputMuxRF) //SET this as the output 
+    );
      NBit_RegFile #(.N(32)) RF(
     .clk(clk),
     .rst(rst),
     .RegWrite(RegWrite),
-    .writeData(writeData),
+    .writeData(outputMuxRF), //would change this to output of the Mux made
     .RegRead1(Instruction[19:15]),
     .RegRead2(Instruction[24:20]),
     .WriteAddress(Instruction[11:7]),
@@ -155,7 +169,7 @@ output [6:0] Seven_Seg_Out
     RCA #(.N(32))BranchAdderPC (
     .A(Immediate_Shifted),
     .B(PC_in),
-    .AddSub(1'b0),
+    .AddSub(1'b0), //This is the branched instruction tuhs, send this back to a mux alongside JAL/JALR  and mux from RAM to RD
     .S(Branched_PC)
     );
     
@@ -172,6 +186,11 @@ output [6:0] Seven_Seg_Out
         .sel(ZeroFlag&Branch),
         .Y(PC_out)
     );
+    
+
+     
+
+    // ----- -- - - -- - -- - - -- 
     
     Four_Digit_Seven_Segment_Driver Driver (
     .clk(SSDclk),
