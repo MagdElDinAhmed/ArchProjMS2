@@ -93,15 +93,16 @@ output [6:0] Seven_Seg_Out
     .SaveMethod(SaveMethod)
     );
         //ADDED here by AF
-     NBIT_MUX2x1 #(.N(32))MUX_RF2(
-         .A(Unbranched_PC),
-         .B(Branched_PC),
-         .sel(AUIPCSel),
-         .Y(MuxRF2Out)
-         );
-    NBIT_MUX2x1 #(.N(32))MUX_RF(
-    .A(MuxRF2Out),//MAKE THIS THE output of MUXRF2 A=0
-    .B(writeData),// from mem mux to reg  B=1
+        //AUIPC takes the current PC, not the future one ~Magd
+//     NBit_MUX2x1 #(.N(32))MUX_RF2(
+//         .A(Unbranched_PC),
+//         .B(Branched_PC),
+//         .sel(AUIPCSel),
+//         .Y(MuxRF2Out)
+//         );
+    NBit_MUX2x1 #(.N(32))MUX_RF(
+    .A(PC_in),//MAKE THIS THE output of MUXRF2 A=0
+    .B(RegReadOut1),// from mem mux to reg  B=1
     .sel(MuxRFSel), //final output here Y should go into 
     .Y(outputMuxRF) //SET this as the output 
     );
@@ -109,7 +110,7 @@ output [6:0] Seven_Seg_Out
     .clk(clk),
     .rst(rst),
     .RegWrite(RegWrite),
-    .writeData(outputMuxRF), //would change this to output of the Mux made
+    .writeData(writeData), //would change this to output of the Mux made
     .RegRead1(Instruction[19:15]),
     .RegRead2(Instruction[24:20]),
     .WriteAddress(Instruction[11:7]),
@@ -136,7 +137,7 @@ output [6:0] Seven_Seg_Out
     );
     
     NBit_ALU #(.N(32)) ALU (
-    .A(RegReadOut1),
+    .A(outputMuxRF),
     .B(ALU_in_2),
     .C(ALU_Out),
     .alufn(ALUSel),
