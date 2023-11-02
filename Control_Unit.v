@@ -1,5 +1,4 @@
 `timescale 1ns / 1ps
-`include "defines.v"
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -23,12 +22,12 @@
 
 module Control_Unit #(N=32)(
 input [N-1:0] Instruction,
-output reg Branch, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite,
-output reg [1:0] ALUOp, SaveMethod
+output reg Branch, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite,AUIPCSel, MuxRFSel //do we need MUXRFSel
+output reg [1:0] ALUOp
     );
         always@(*) begin
-            case (Instruction[`IR_opcode])
-                `OPCODE_Arith_R: begin
+            case (Instruction[6:2]) //checking opcode (change to the macro defined name)
+                5'b01100: begin //shift
                     Branch = 1'b0;
                     MemRead = 1'b0;
                     MemtoReg = 1'b0;
@@ -36,10 +35,12 @@ output reg [1:0] ALUOp, SaveMethod
                     MemWrite = 1'b0;
                     ALUSrc = 1'b0;
                     RegWrite = 1'b1;
-                    SaveMethod = 2'b00;
+		    MuxRFSel=1'1; 
+		    AUIPCSel=1'b0;
+
                 end
                 
-                `OPCODE_Load: begin
+                5'b00000: begin //load
                     Branch = 1'b0;
                     MemRead = 1'b1;
                     MemtoReg = 1'b1;
@@ -47,49 +48,46 @@ output reg [1:0] ALUOp, SaveMethod
                     MemWrite = 1'b0;
                     ALUSrc = 1'b1;
                     RegWrite = 1'b1;
-                    SaveMethod = 2'b00;
+		    MuxRFSel=1'1; 
+		    AUIPCSel=1'b0;
                 end
                 
-                `OPCODE_Store: begin
+                5'b01000: begin //store
                     Branch = 1'b0;
                     MemRead = 1'b0;
                     ALUOp = 2'b00;
                     MemWrite = 1'b1;
                     ALUSrc = 1'b1;
                     RegWrite = 1'b0;
-                    case(Instruction[`IR_funct3])
-                        `SB: begin
-                            SaveMethod = 2'b00;
-                        end
-                        `SH: begin
-                            SaveMethod = 2'b01;
-                        end
-                        `SB: begin
-                            SaveMethod = 2'b10;
-                        end
-                    endcase
+		    MuxRFSel=1'1;  //X
+		    AUIPCSel=1'b0; //X
                 end
                 
-                `OPCODE_Branch: begin
+                5'b11000: begin //branching
                     Branch = 1'b1;
                     MemRead = 1'b0;
                     ALUOp = 2'b01;
                     MemWrite = 1'b0;
                     ALUSrc = 1'b0;
                     RegWrite = 1'b0;
-                    SaveMethod = 2'b00;
+		    MuxRFSel=1'1; 
+		    AUIPCSel=1'b0; //XXX
+
                 end
-                `OPCODE_Arith_I: begin //I-type instructions
-                 	Branch = 1'b0;
-                    MemRead = 1'b0;
-                    ALUOp = 2'b10; //what should i make this 
-                    MemWrite = 1'b0; 
-                    ALUSrc = 1'b1; //check if this is the right signal
-                    RegWrite = 1'b1;
-                    SaveMethod = 2'b00;
-                  
-                end
+		5'b00101: begin
+			//
+		   Branch=1'b0;
+		   MemRead= 1'b
+	   	   ALUOp= 2'b00; //(i think because add)
+	   	   MemWrite=1'b0;
+		   ALUSrc=1'b1; //check this 
+		   RegWrite=1'b1; //because we will write back to RF
+			//add here signals to control the new Muxes. 
+		   MuxRFSel=1'b0; //chooses sel line of branched  
+		   AUIPCSel=1'b1;
+		end
+
             endcase
+		
         end
-        
 endmodule
