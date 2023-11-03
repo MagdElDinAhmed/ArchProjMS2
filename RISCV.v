@@ -31,7 +31,7 @@ output [6:0] Seven_Seg_Out
     );
     wire [5:0] Inst_addr;
     wire [31:0] Instruction, RegReadOut1, RegReadOut2, Immediate
-    ,ALU_in_2, ALU_Out, RAM_data_out, True_RAM_data_out, Immediate_Shifted, writeData,outputMuxRF;
+    ,ALU_in_2, ALU_Out, RAM_data_out, True_RAM_data_out, Immediate_Shifted, writeData,outputMuxRF,outputMuxRF2,outputMuxRF3;
     wire Branch,MemRead,MemtoReg,MemWrite,ALUSrc,RegWrite,MuxRFSel,AUIPCSel;
     wire [1:0] ALUOp, SaveMethod;
     wire [3:0] ALUSel;
@@ -100,17 +100,20 @@ output [6:0] Seven_Seg_Out
 //         .sel(AUIPCSel),
 //         .Y(MuxRF2Out)
 //         );
+    
+
     NBit_MUX2x1 #(.N(32))MUX_RF(
     .A(PC_in),//MAKE THIS THE output of MUXRF2 A=0
     .B(RegReadOut1),// from mem mux to reg  B=1
     .sel(MuxRFSel), //final output here Y should go into 
     .Y(outputMuxRF) //SET this as the output 
     );
+
      NBit_RegFile #(.N(32)) RF(
     .clk(clk),
     .rst(rst),
     .RegWrite(RegWrite),
-    .writeData(writeData), //would change this to output of the Mux made
+    .writeData(outputMuxRF2), //would change this to output of the Mux made
     .RegRead1(Instruction[19:15]),
     .RegRead2(Instruction[24:20]),
     .WriteAddress(Instruction[11:7]),
@@ -122,6 +125,12 @@ output [6:0] Seven_Seg_Out
         .Instruction(Instruction),
         .Immediate(Immediate)
     );
+        NBit_Shift_Left_1 #(.N(32)) Shifter
+    (
+        .X(Immediate),
+        .Y(Immediate_Shifted)
+    );
+    
     
     NBit_MUX2x1 #(.N(32))MUX_ALU(
         .A(RegReadOut2),
@@ -136,16 +145,27 @@ output [6:0] Seven_Seg_Out
         .ALUSel(ALUSel)
     );
     
+    
+    
     NBit_ALU #(.N(32)) ALU (
     .A(outputMuxRF),
     .B(ALU_in_2),
-    .C(ALU_Out),
+    .C(ALU_Out),   //ALU OUT here should go to RD  
     .alufn(ALUSel),
     .ZeroFlag(ZeroFlag),
     .CarryFlag(CarryFlag),
     .OverflowFlag(OverflowFlag),
     .SignFlag(SignFlag)
     );
+    
+    NBit_MUX2x1 #(.N(32))MUX_RF2( //this is MUX for write Data in RF
+  .A(Unbranched_PC),//AUIPC
+  .B(writeData),// This is to do with the one coming out PC+4 used for JAL/JALR to store next instruction
+  .sel(AUIPCSel), //if 1 then AUIPC , should we get rid of this control signal? AUIPC signal must be on then if we just writing back normally 
+  .Y(outputMuxRF2) //SET this as the output 
+  ); //the above selects between the input which is AUIPC or Branch 
+
+    
     
     DataMem RAM
     (.clk(clk), .MemRead(MemRead), .MemWrite(MemWrite), .SaveMethod(SaveMethod),
@@ -158,15 +178,10 @@ output [6:0] Seven_Seg_Out
         .A(ALU_Out),
         .B(True_RAM_data_out),
         .sel(MemtoReg),
-        .Y(writeData)
+        .Y(writeData) //mem to reg would be 0 for the AUIPC instruction thus, wouldnt need extra control
     );
     
-    NBit_Shift_Left_1 #(.N(32)) Shifter
-    (
-        .X(Immediate),
-        .Y(Immediate_Shifted)
-    );
-    
+
     RCA #(.N(32))BranchAdderPC (
     .A(Immediate_Shifted),
     .B(PC_in),
