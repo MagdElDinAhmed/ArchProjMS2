@@ -52,6 +52,7 @@ output reg [1:0] ALUOp, SaveMethod
                     SaveMethod = 2'b00;
                     MuxRFSel=1'b1; 
                     AUIPCSel=1'b0;
+                    MemtoReg=1'b0;
                   
                 end
                 
@@ -65,7 +66,7 @@ output reg [1:0] ALUOp, SaveMethod
                     RegWrite = 1'b1;
                     SaveMethod = 2'b00;
 		            MuxRFSel=1'b1; 
-		            AUIPCSel=1'b0;
+		            AUIPCSel=1'b1; //THIS would have to be 1 to select the line coming From writeData(from Mux of memory and ALU_Out)
                 end
                 
                 `OPCODE_Store: begin //store
@@ -77,6 +78,8 @@ output reg [1:0] ALUOp, SaveMethod
                     RegWrite = 1'b0;
 		            MuxRFSel=1'b1;  //X
 		            AUIPCSel=1'b0; //X
+		            MemtoReg=1'b0;
+		          
 		            case(Instruction[`IR_funct3])
                         `SB: begin
                             SaveMethod = 2'b00;
@@ -99,7 +102,8 @@ output reg [1:0] ALUOp, SaveMethod
                     RegWrite = 1'b0;
                     SaveMethod = 2'b00;
 		            MuxRFSel=1'b1; 
-		            AUIPCSel=1'b0; //XXX
+		            AUIPCSel=1'b0; //XXX here doesnt matter again 
+		            MemtoReg=1'b0;
 		            
 
                 end
@@ -113,7 +117,8 @@ output reg [1:0] ALUOp, SaveMethod
                    RegWrite=1'b1; //because we will write back to RF
                     //add here signals to control the new Muxes. 
                    MuxRFSel=1'b0; //chooses sel line of branched  
-                   AUIPCSel=1'b1;
+                   AUIPCSel=1'b1; 
+                   MemtoReg=1'b0;
                    SaveMethod = 2'b00;
                 end
 
