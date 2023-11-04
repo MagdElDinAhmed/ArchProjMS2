@@ -32,7 +32,10 @@ output reg [N-1:0] Immediate
         end else //S Condition
         if (Instruction[5]==1'b1) begin
             Immediate = { {(N-12){Instruction[31]}} ,Instruction[31:25],Instruction[11:7] };
-        end else begin //I Condition
+        end else
+        if (Instruction[4:0]==5'b10111) begin //Handles LUI and AUIPC
+            Immediate = { {Instruction[31:12]} ,{(N-20){1'b0}}};
+        end else begin//I Condition
             Immediate = { {(N-12){Instruction[31]}} ,Instruction[31:20] };
         end
     end

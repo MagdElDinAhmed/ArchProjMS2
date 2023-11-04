@@ -31,12 +31,12 @@ output [6:0] Seven_Seg_Out
     );
     wire [5:0] Inst_addr;
     wire [31:0] Instruction, RegReadOut1, RegReadOut2, Immediate
-    ,ALU_in_2, ALU_Out, RAM_data_out, True_RAM_data_out, Immediate_Shifted, writeData;
-    wire Branch,MemRead,MemtoReg,MemWrite,ALUSrc,RegWrite;
+    ,ALU_in_2, ALU_Out, RAM_data_out, True_RAM_data_out, Immediate_Shifted, writeData,outputMuxRF,outputMuxRF2,outputMuxRF3;
+    wire Branch,MemRead,MemtoReg,MemWrite,ALUSrc,RegWrite,MuxRFSel,JSel;
     wire [1:0] ALUOp, SaveMethod;
     wire [3:0] ALUSel;
     integer i;
-    wire [31:0] PC_in,Unbranched_PC, Branched_PC, PC_out;
+    wire [31:0] PC_in,Unbranched_PC, Branched_PC, PC_out,MuxRF2Out;
     reg [12:0] Seven_Seg_Num;
     
     wire ZeroFlag, CarryFlag, OverflowFlag, SignFlag;
@@ -88,14 +88,32 @@ output [6:0] Seven_Seg_Out
     .ALUSrc(ALUSrc),
     .RegWrite(RegWrite),
     .ALUOp(ALUOp),
+    .MuxRFSel(MuxRFSel), //Select line for MuxRF1
+    .JSel(JSel), //this is the Selectline for the MuxRF2
     .SaveMethod(SaveMethod)
     );
+        //ADDED here by AF
+        //AUIPC takes the current PC, not the future one ~Magd
+//     NBit_MUX2x1 #(.N(32))MUX_RF2(
+//         .A(Unbranched_PC),
+//         .B(Branched_PC),
+//         .sel(AUIPCSel),
+//         .Y(MuxRF2Out)
+//         );
     
+
+    NBit_MUX2x1 #(.N(32))MUX_RF(
+    .A(PC_in),//MAKE THIS THE output of MUXRF2 A=0
+    .B(RegReadOut1),// from mem mux to reg  B=1
+    .sel(MuxRFSel), //final output here Y should go into 
+    .Y(outputMuxRF) //SET this as the output 
+    );
+
      NBit_RegFile #(.N(32)) RF(
     .clk(clk),
     .rst(rst),
     .RegWrite(RegWrite),
-    .writeData(writeData),
+    .writeData(outputMuxRF2), //would change this to output of the Mux made
     .RegRead1(Instruction[19:15]),
     .RegRead2(Instruction[24:20]),
     .WriteAddress(Instruction[11:7]),
@@ -107,6 +125,12 @@ output [6:0] Seven_Seg_Out
         .Instruction(Instruction),
         .Immediate(Immediate)
     );
+        NBit_Shift_Left_1 #(.N(32)) Shifter
+    (
+        .X(Immediate),
+        .Y(Immediate_Shifted)
+    );
+    
     
     NBit_MUX2x1 #(.N(32))MUX_ALU(
         .A(RegReadOut2),
@@ -121,16 +145,27 @@ output [6:0] Seven_Seg_Out
         .ALUSel(ALUSel)
     );
     
+    
+    
     NBit_ALU #(.N(32)) ALU (
-    .A(RegReadOut1),
+    .A(outputMuxRF),
     .B(ALU_in_2),
-    .C(ALU_Out),
+    .C(ALU_Out),   //ALU OUT here should go to RD  
     .alufn(ALUSel),
     .ZeroFlag(ZeroFlag),
     .CarryFlag(CarryFlag),
     .OverflowFlag(OverflowFlag),
     .SignFlag(SignFlag)
     );
+    
+    NBit_MUX2x1 #(.N(32))MUX_RF2( //this is MUX for write Data in RF
+  .A(Unbranched_PC),//jal and jalr 
+  .B(writeData),// This is to do with the one coming out PC+4 used for JAL/JALR to store next instruction
+  .sel(JSel), //if 1 then AUIPC , should we get rid of this control signal? AUIPC signal must be on then if we just writing back normally Magd Comment: AUIPCSel may not be the best name for this selection line
+  .Y(outputMuxRF2) //SET this as the output 
+  ); //the above selects between the input which is AUIPC or Branch 
+
+    
     
     DataMem RAM
     (.clk(clk), .MemRead(MemRead), .MemWrite(MemWrite), .SaveMethod(SaveMethod),
@@ -143,19 +178,14 @@ output [6:0] Seven_Seg_Out
         .A(ALU_Out),
         .B(True_RAM_data_out),
         .sel(MemtoReg),
-        .Y(writeData)
+        .Y(writeData) //mem to reg would be 0 for the AUIPC instruction thus, wouldnt need extra control
     );
     
-    NBit_Shift_Left_1 #(.N(32)) Shifter
-    (
-        .X(Immediate),
-        .Y(Immediate_Shifted)
-    );
-    
+
     RCA #(.N(32))BranchAdderPC (
     .A(Immediate_Shifted),
     .B(PC_in),
-    .AddSub(1'b0),
+    .AddSub(1'b0), //This is the branched instruction tuhs, send this back to a mux alongside JAL/JALR  and mux from RAM to RD
     .S(Branched_PC)
     );
     
@@ -172,6 +202,11 @@ output [6:0] Seven_Seg_Out
         .sel(ZeroFlag&Branch),
         .Y(PC_out)
     );
+    
+
+     
+
+    // ----- -- - - -- - -- - - -- 
     
     Four_Digit_Seven_Segment_Driver Driver (
     .clk(SSDclk),

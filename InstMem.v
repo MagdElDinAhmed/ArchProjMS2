@@ -33,7 +33,6 @@ module InstMem (input [7:0] addr, output [31:0] data_out);
      mem[1]= 32'h0x00402103 ;
      //add x3,x0,x0 makes x3 = 0
      //8
-     //mem[2] = 32'h0x001111b3;
      mem[2] = 32'h0x000001b3;
      //add x4,x0,x0 makes x4 = 0
      //12
@@ -53,5 +52,8 @@ module InstMem (input [7:0] addr, output [31:0] data_out);
      //sh x4,12(x0)
      //32
      mem[8] = 32'h0x00401623;
+     //auipc x7,15
+     //36
+     mem[9] = 32'h0x0000f397;
  end
 endmodule
