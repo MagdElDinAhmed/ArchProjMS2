@@ -24,6 +24,7 @@
 module ALU_Control_Unit #(N=32)(
 input [N-1:0] Instruction,
 input [1:0] ALUOp,
+input ALUSrc,
 output reg [3:0] ALUSel
     );
         always@(*) begin
@@ -39,7 +40,7 @@ output reg [3:0] ALUSel
                 2'b10: begin
                     case (Instruction[`IR_funct3])
                         `F3_ADD: begin
-                            if (Instruction[30] == 1'b0)
+                            if (Instruction[30] == 1'b0 || ALUSrc == 1'b1)//ALUSrc is meant to account for the possibility of ADDI with a negative number
                                 ALUSel = `ALU_ADD;
                             else
                                 ALUSel = `ALU_SUB;

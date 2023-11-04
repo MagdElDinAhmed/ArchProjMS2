@@ -32,7 +32,7 @@ output [6:0] Seven_Seg_Out
     wire [5:0] Inst_addr;
     wire [31:0] Instruction, RegReadOut1, RegReadOut2, Immediate
     ,ALU_in_2, ALU_Out, RAM_data_out, True_RAM_data_out, Immediate_Shifted, writeData,outputMuxRF,outputMuxRF2,outputMuxRF3;
-    wire Branch,MemRead,MemtoReg,MemWrite,ALUSrc,RegWrite,MuxRFSel,AUIPCSel;
+    wire Branch,MemRead,MemtoReg,MemWrite,ALUSrc,RegWrite,MuxRFSel,JSel;
     wire [1:0] ALUOp, SaveMethod;
     wire [3:0] ALUSel;
     integer i;
@@ -89,7 +89,7 @@ output [6:0] Seven_Seg_Out
     .RegWrite(RegWrite),
     .ALUOp(ALUOp),
     .MuxRFSel(MuxRFSel), //Select line for MuxRF1
-    .AUIPCSel(AUIPCSel), //this is the Selectline for the MuxRF2
+    .JSel(JSel), //this is the Selectline for the MuxRF2
     .SaveMethod(SaveMethod)
     );
         //ADDED here by AF
@@ -159,9 +159,9 @@ output [6:0] Seven_Seg_Out
     );
     
     NBit_MUX2x1 #(.N(32))MUX_RF2( //this is MUX for write Data in RF
-  .A(Unbranched_PC),//AUIPC
+  .A(Unbranched_PC),//jal and jalr 
   .B(writeData),// This is to do with the one coming out PC+4 used for JAL/JALR to store next instruction
-  .sel(AUIPCSel), //if 1 then AUIPC , should we get rid of this control signal? AUIPC signal must be on then if we just writing back normally 
+  .sel(JSel), //if 1 then AUIPC , should we get rid of this control signal? AUIPC signal must be on then if we just writing back normally Magd Comment: AUIPCSel may not be the best name for this selection line
   .Y(outputMuxRF2) //SET this as the output 
   ); //the above selects between the input which is AUIPC or Branch 
 
