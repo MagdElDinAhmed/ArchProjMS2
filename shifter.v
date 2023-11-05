@@ -30,11 +30,11 @@ module shifter(
     
     always@(*) begin
         case(type)
-            //SLL
+            //SRL
             2'b00: begin
                 r = a>>shamt;
             end
-            //SRL
+            //SLL
             2'b01: begin
                 r = a<<shamt;
             end

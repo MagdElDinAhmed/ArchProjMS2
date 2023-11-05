@@ -28,7 +28,12 @@ output reg [N-1:0] Immediate
     always@(*)begin
         //SB Condition
         if (Instruction[6]==1'b1) begin
-            Immediate = { {(N-12){Instruction[31]}} ,Instruction[31],Instruction[7],Instruction[30:25],Instruction[11:8]};
+            if (Instruction[3]==1'b1) begin
+                Immediate = { {(N-12){Instruction[31]}} ,Instruction[31],Instruction[19:12],Instruction[20],Instruction[30:21]};
+            end else if (Instruction[2]==1'b1)
+                Immediate = { {(N-12){Instruction[31]}} ,Instruction[31],Instruction[7],Instruction[30:25],Instruction[11:8]};
+            else
+                Immediate = { {(N-12){Instruction[31]}} ,Instruction[31:20] };
         end else //S Condition
         if (Instruction[5]==1'b1) begin
             Immediate = { {(N-12){Instruction[31]}} ,Instruction[31:25],Instruction[11:7] };

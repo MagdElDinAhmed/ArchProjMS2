@@ -1,0 +1,123 @@
+#some initial setup also addi test 
+addi x1,x0,1
+addi x2,x0,5
+addi x3,x0,20
+addi x4,x0,1787
+addi x5,x0,-1234
+addi x30,x0,-5
+
+#and test
+and x6,x4,x2
+andi x6,x4,5
+
+#or test
+or x7,x3,x1
+ori x7, x3, 65
+
+#sra test
+sra x8,x5,x2
+srai x8,x8,2
+
+#srl test
+srl x8,x8,x1
+srli x8,x8,3
+
+#sll test
+sll x9,x3,x2
+slli x9,x9,4
+
+#xor test
+xor x10,x4,x5
+xori x10,x10,436
+
+#sltu test
+sltu x11,x3,x5
+sltiu x11,x4,-463
+
+#slt test
+slt x12,x5,x3
+slti x12,x5,-2
+
+#sub test
+sub x13,x5,x4
+
+#add test
+add x14, x9,x8
+
+#sw test
+sw x5,0(x0)
+#sh test
+sh x6,2(x3)
+#sb test
+sb x3,1(x3)
+
+#lw test
+lw x15,0(x0)
+lh x16,2(x3)
+lb x17,1(x3)
+lhu x18,0(x0)
+lbu x19,3(x0)
+
+#beq test
+beq x0,x0,12
+addi x0,x0,0
+addi x0,x0,0
+
+
+#bne test
+bne x0,x1,12
+addi x0,x0,0
+addi x0,x0,0
+
+
+#blt test
+blt x5,x2,12
+addi x0,x0,0
+addi x0,x0,0
+
+
+#bge test
+bge x4,x1,12
+addi x0,x0,0
+addi x0,x0,0
+
+#bltu test
+bltu x2,x5,12
+addi x0,x0,0
+addi x0,x0,0
+
+
+#bgeu test
+bgeu x2,x30,12
+addi x0,x0,0
+addi x0,x0,0
+
+
+#jal test
+jal x20, 16
+addi x0,x0,0
+addi x0,x0,0
+beq x0,x0,16
+
+
+#jalr test
+jalr x21,x20,4
+addi x0,x0,0
+addi x0,x0,0
+
+
+#auipc test
+auipc x22, 2134
+
+#lui test
+lui x23, -12
+
+#ecall test
+addi a7,x0,1
+ecall
+#fence test
+fence 1,1
+#ebreak test
+ebreak
+addi x0,x0,0
+addi x0,x0,0
