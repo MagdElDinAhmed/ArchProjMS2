@@ -169,7 +169,7 @@ output [6:0] Seven_Seg_Out
     
     NBit_MUX2x1 #(.N(32))MUX_RF2( //this is MUX for AUIPC or Branch line into main mux for RF
   .A(writeData),//AUIPC
-  .B(Unbranched_PC),// This is to do with the one coming out PC+4
+  .B(Unbranched_PC),// This is to do with the one coming out PC+4 This in turn will allow for the JAL, JALR instructions to be stored.
   .sel(AUIPCSel), //
   .Y(outputMuxRF2) //SET this as the output 
   ); //the above selects between the input which is AUIPC or Branch 
