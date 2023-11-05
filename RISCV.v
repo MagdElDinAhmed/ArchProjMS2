@@ -175,7 +175,7 @@ output [6:0] Seven_Seg_Out
     
     NBit_MUX2x1 #(.N(32))MUX_RF2( //this is MUX for AUIPC or Branch line into main mux for RF
   .A(writeData),//AUIPC
-  .B(Unbranched_PC),// This is to do with the one coming out PC+4
+  .B(Unbranched_PC),// This is to do with the one coming out PC+4 This in turn will allow for the JAL, JALR instructions to be stored.
   .sel(AUIPCSel), //
   .Y(outputMuxRF2) //SET this as the output 
   ); //the above selects between the input which is AUIPC or Branch 
@@ -183,11 +183,22 @@ output [6:0] Seven_Seg_Out
     
     
     DataMem RAM
-    (.clk(clk), .MemRead(MemRead), .MemWrite(MemWrite), .SaveMethod(SaveMethod),
-    .addr(ALU_Out), .data_in(RegReadOut2), .data_out(RAM_data_out));
+    (
+    .clk(clk), 
+    .MemRead(MemRead),
+    .MemWrite(MemWrite), 
+    .SaveMethod(SaveMethod),
+    .addr(ALU_Out), 
+    .data_in(RegReadOut2), 
+    .data_out(RAM_data_out)
+    );
     
     LoadHandler Loader
-    (Instruction[`IR_funct3],RAM_data_out,True_RAM_data_out);
+    (
+    Instruction[`IR_funct3],
+    RAM_data_out,
+    True_RAM_data_out
+    );
     
     NBit_MUX2x1 #(.N(32))MUX_RAM(
         .A(ALU_Out),
