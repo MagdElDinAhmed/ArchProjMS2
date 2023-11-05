@@ -7,3 +7,4 @@ November 1st 9:52 pm: Changed how Data Memory operates such that it is a 256 ele
                        Implemented and tested SW and SH.
 November 4th 2:39 pm: fixed a bug in AUIPC and added an ADDI guard
 November 5th 5:58 pm: created the RISC-V test program 
+November 5th 7:35 pm: fixed a bug in branchControlUnit that prevented branching from working as intended
