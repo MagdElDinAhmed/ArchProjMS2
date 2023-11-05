@@ -55,6 +55,7 @@ output reg [1:0] ALUOp, SaveMethod
                   
                 end
                 
+                
                 `OPCODE_Load: begin //load
                     Branch = 1'b0;
                     MemRead = 1'b1;
@@ -115,8 +116,31 @@ output reg [1:0] ALUOp, SaveMethod
                    MuxRFSel=1'b0; //chooses sel line of branched  
                    AUIPCSel=1'b1;
                    SaveMethod = 2'b00;
+                end 
+                
+                `OPCODE_JAL: begin 
+                        Branch = 1'b1;  
+                        MemRead = 1'b0;
+                        ALUOp = 2'b00; //check
+                        MemWrite = 1'b0;
+                        ALUSrc = 1'b0;
+                        RegWrite = 1'b1; //
+                        SaveMethod = 2'b00;
+                        MuxRFSel=1'b0; //chooses i think the line that reads from PC_IN  to calculate jump address  
+                        AUIPCSel=1'b1; //XXX
                 end
-
+                `OPCODE_JALR: begin 
+                     Branch = 1'b1;  
+                    MemRead = 1'b0;
+                    ALUOp = 2'b10; //check
+                    MemWrite = 1'b0;
+                    ALUSrc = 1'b0;
+                    RegWrite = 1'b1; //
+                    SaveMethod = 2'b00;
+                    MuxRFSel=1'b1; //chooses i think the line that reads from PC_IN  to calculate jump address  
+                    AUIPCSel=1'b1; //XXX
+                end
+                
             endcase
 		
         end
