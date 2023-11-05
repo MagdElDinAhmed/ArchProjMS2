@@ -32,11 +32,11 @@ output [6:0] Seven_Seg_Out
     wire [5:0] Inst_addr;
     wire [31:0] Instruction, RegReadOut1, RegReadOut2, Immediate
     ,ALU_in_2, ALU_Out, RAM_data_out, True_RAM_data_out, Immediate_Shifted, writeData,outputMuxRF,outputMuxRF2,outputMuxRF3;
-    wire ActivateBranch,Branch,MemRead,MemtoReg,MemWrite,ALUSrc,RegWrite,MuxRFSel,AUIPCSel;
+    wire ActivateBranch,Branch,MemRead,MemtoReg,MemWrite,ALUSrc,RegWrite,MuxRFSel,AUIPCSel, Jump, JALR;
     wire [1:0] ALUOp, SaveMethod;
     wire [3:0] ALUSel;
     integer i;
-    wire [31:0] PC_in,Unbranched_PC, Branched_PC, PC_out,MuxRF2Out;
+    wire [31:0] PC_in,Unbranched_PC, Branched_PC, PC_out,MuxRF2Out, Actual_Branch_PC;
     reg [12:0] Seven_Seg_Num;
     
     wire ZeroFlag, CarryFlag, OverflowFlag, SignFlag;
@@ -99,7 +99,9 @@ output [6:0] Seven_Seg_Out
     .ALUOp(ALUOp),
     .MuxRFSel(MuxRFSel), //Select line for MuxRF1
     .AUIPCSel(AUIPCSel), //this is the Selectline for the MuxRF2
-    .SaveMethod(SaveMethod)
+    .SaveMethod(SaveMethod),
+    .Jump(Jump),
+    .JALR(JALR)
     );
         //ADDED here by AF
         //AUIPC takes the current PC, not the future one ~Magd
@@ -134,10 +136,13 @@ output [6:0] Seven_Seg_Out
         .Instruction(Instruction),
         .Immediate(Immediate)
     );
-        NBit_Shift_Left_1 #(.N(32)) Shifter
+    //{ {~{Instruction[31]}} ,Instruction[31]}
+    shifter Shifter
     (
-        .X(Immediate),
-        .Y(Immediate_Shifted)
+        .a(Immediate),
+        .shamt(5'd1),
+        .type(2'b01),
+        .r(Immediate_Shifted)
     );
     
     
@@ -151,6 +156,7 @@ output [6:0] Seven_Seg_Out
     ALU_Control_Unit #(.N(32)) ALU_CU(
         .Instruction(Instruction),
         .ALUOp(ALUOp),
+        .ALUSrc(ALUSrc),
         .ALUSel(ALUSel)
     );
     
@@ -207,11 +213,17 @@ output [6:0] Seven_Seg_Out
     
     NBit_MUX2x1 #(.N(32))MUX_PC(
         .A(Unbranched_PC),
-        .B(Branched_PC),
-        .sel(ActivateBranch&Branch), //CHANGE this to just Branch which is now handled by the Branching control Unit instead of zeroFlag
+        .B(Actual_Branch_PC),
+        .sel(ActivateBranch&Branch || Jump), //CHANGE this to just Branch which is now handled by the Branching control Unit instead of zeroFlag
         .Y(PC_out)
     );
     
+    NBit_MUX2x1 #(.N(32))MUX_Branch_Jump(
+        .A(Branched_PC),
+        .B(ALU_Out),
+        .sel(JALR), //CHANGE this to just Branch which is now handled by the Branching control Unit instead of zeroFlag
+        .Y(Actual_Branch_PC)
+    );
 
      
 

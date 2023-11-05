@@ -23,10 +23,24 @@
 
 module Control_Unit #(N=32)(
 input [N-1:0] Instruction,
-output reg Branch, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite,AUIPCSel, MuxRFSel, //do we need MUXRFSel
+output reg Branch, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite,AUIPCSel, MuxRFSel, Jump, JALR, //do we need MUXRFSel
 output reg [1:0] ALUOp, SaveMethod
     );
         always@(*) begin
+            if (Instruction[6:0] == `OPCODE_ECALL) begin
+                Branch = 1'b0;
+                MemRead = 1'b0;
+                MemtoReg = 1'b0;
+                ALUOp = 2'b00;
+                MemWrite = 1'b0;
+                ALUSrc = 1'b0;
+                RegWrite = 1'b0;
+                SaveMethod = 2'b00;
+                MuxRFSel=1'b0; 
+                AUIPCSel=1'b0;
+                Jump = 1'b0;
+                JALR = 1'b0;
+            end
             case (Instruction[`IR_opcode]) //checking opcode (change to the macro defined name)
                 `OPCODE_Arith_R: begin //arithmetic regitser operations
                     Branch = 1'b0;
@@ -39,6 +53,8 @@ output reg [1:0] ALUOp, SaveMethod
                     SaveMethod = 2'b00;
 		            MuxRFSel=1'b1; 
 		            AUIPCSel=1'b0;
+		            Jump = 1'b0;
+		            JALR = 1'b0;
 
                 end
                 
@@ -52,6 +68,8 @@ output reg [1:0] ALUOp, SaveMethod
                     SaveMethod = 2'b00;
                     MuxRFSel=1'b1; 
                     AUIPCSel=1'b0;
+		            Jump = 1'b0;
+                    JALR = 1'b0;
                   
                 end
                 
@@ -66,6 +84,8 @@ output reg [1:0] ALUOp, SaveMethod
                     SaveMethod = 2'b00;
 		            MuxRFSel=1'b1; 
 		            AUIPCSel=1'b0;
+		            Jump = 1'b0;
+                    JALR = 1'b0;
                 end
                 
                 `OPCODE_Store: begin //store
@@ -88,6 +108,8 @@ output reg [1:0] ALUOp, SaveMethod
                             SaveMethod = 2'b10;
                         end
                     endcase
+		            Jump = 1'b0;
+                    JALR = 1'b0;
                 end
                 
                 `OPCODE_Branch: begin //branching
@@ -100,7 +122,8 @@ output reg [1:0] ALUOp, SaveMethod
                     SaveMethod = 2'b00;
 		            MuxRFSel=1'b1; 
 		            AUIPCSel=1'b0; //XXX
-		            
+		            Jump = 1'b0;
+                    JALR = 1'b0;
 
                 end
                 `OPCODE_AUIPC: begin
@@ -115,6 +138,35 @@ output reg [1:0] ALUOp, SaveMethod
                    MuxRFSel=1'b0; //chooses sel line of branched  
                    AUIPCSel=1'b1;
                    SaveMethod = 2'b00;
+		           Jump = 1'b0;
+                   JALR = 1'b0;
+                end 
+                
+                `OPCODE_JAL: begin 
+                        Branch = 1'b1;  
+                        MemRead = 1'b0;
+                        ALUOp = 2'b00; //check
+                        MemWrite = 1'b0;
+                        ALUSrc = 1'b1;
+                        RegWrite = 1'b1; //
+                        SaveMethod = 2'b00;
+                        MuxRFSel=1'b0; //chooses i think the line that reads from PC_IN  to calculate jump address  
+                        AUIPCSel=1'b1; //XXX
+		                Jump = 1'b1;
+                        JALR = 1'b0;
+                end
+                `OPCODE_JALR: begin 
+                     Branch = 1'b1;  
+                    MemRead = 1'b0;
+                    ALUOp = 2'b10; //check
+                    MemWrite = 1'b0;
+                    ALUSrc = 1'b1;
+                    RegWrite = 1'b1; //
+                    SaveMethod = 2'b00;
+                    MuxRFSel=1'b1; //chooses i think the line that reads from PC_IN  to calculate jump address  
+                    AUIPCSel=1'b1; //XXX
+		            Jump = 1'b1;
+                    JALR = 1'b1;
                 end
 
             endcase
