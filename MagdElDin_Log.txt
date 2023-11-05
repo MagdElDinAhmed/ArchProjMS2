@@ -1,6 +1,9 @@
 October 31st 9:00 pm: integrated the support code into the lab 6 code
 October 31st 11:00 pm: integrated SLT, SLTI, SLL, and SRL and tested the shift functions
+November 1st 8:56 am: corrected an error in the shifter
 November 1st 9:30 am: Fixed the SRA and tested it, thus adding it to implemented functions
 November 1st 3:00 pm: Added support for LB and LH by creating a new component that follows Data Memory
-November 1st 10:10 pm: Changed how Data Memory operates such that it is a 256 element vector where each element is 8 bits (a byte) to allow for byte addressability
+November 1st 9:52 pm: Changed how Data Memory operates such that it is a 256 element vector where each element is 8 bits (a byte) to allow for byte addressability
                        Implemented and tested SW and SH.
+November 4th 2:39 pm: fixed a bug in AUIPC and added an ADDI guard
+November 5th 5:58 pm: created the RISC-V test program 
