@@ -28,7 +28,7 @@ module branchControlUnit #(N=32)(
     
    always@(*)begin
    
-   case (Instruction[`IR_opcode]) 
+   case (Instruction[`IR_funct3]) 
   //checking opcode (change to the macro defined name)
                    `BR_BEQ:
                     begin 
@@ -42,16 +42,19 @@ module branchControlUnit #(N=32)(
                    end
                     `BR_BNE:
                     begin 
-                    if(~ZFlag)begin
-                         Branch=1'b1;
-                     end
-                     else begin
-                        Branch=1'b0;
-                     end
+                        if(~ZFlag)begin
+                             Branch=1'b1;
+                         end
+                         else begin
+                            Branch=1'b0;
+                         end
                      end
                      `BR_BLT: begin
                         if(SFlag != VFlag)begin 
-                        Branch=1'b1;
+                            Branch=1'b1;
+                        end
+                        else begin 
+                            Branch=1'b0; 
                         end
                      end
                      `BR_BGE: begin
@@ -59,24 +62,26 @@ module branchControlUnit #(N=32)(
                             Branch=1'b1; 
                         
                         end
-                        else begin Branch=1'b0; 
+                        else begin 
+                            Branch=1'b0; 
                         end
                       end
                      `BR_BLTU: begin 
                         if(~CFlag) begin 
-                        Branch=1'b1;
+                            Branch=1'b1;
                         end
-                        else begin  Branch=1'b0;
+                        else begin 
+                            Branch=1'b0;
                         end
                         
                      end
                      `BR_BGEU:begin 
-                     if(CFlag)begin 
-                     Branch=1'b1;
-                     end
-                     else begin
-                     Branch=1'b0;
-                     end
+                         if(CFlag)begin 
+                            Branch=1'b1;
+                         end
+                         else begin
+                            Branch=1'b0;
+                         end
                      
                      end
  

@@ -43,12 +43,12 @@ module InstMem (input [7:0] addr, output [31:0] data_out);
      //add x4,x4,x3 
      //20
      mem[5] = 32'h0x00320233;
-     //beq x3,x2,8
+     //bge x3,x2,8
      //24
-     mem[6] = 32'h0x00218463;
-     //beq x0,x0,-12
+     mem[6] = 32'h0x0021d463;
+     //blt x3, x2, -12
      //28
-     mem[7] = 32'h0xfe000ae3;
+     mem[7] = 32'h0xfe21cae3;
      //sh x4,12(x0)
      //32
      mem[8] = 32'h0x00401623;
