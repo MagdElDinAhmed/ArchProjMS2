@@ -88,7 +88,7 @@ addi x0,x0,0
 
 
 #bgeu test
-bltu x2,x30,12
+bgeu x2,x30,12
 addi x0,x0,0
 addi x0,x0,0
 
