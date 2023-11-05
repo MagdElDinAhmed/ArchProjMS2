@@ -61,6 +61,7 @@ output reg [1:0] ALUOp, SaveMethod
                 `OPCODE_Arith_I: begin //I-type instructions
                     Branch = 1'b0;
                     MemRead = 1'b0;
+                    MemtoReg = 1'b0;
                     ALUOp = 2'b10; //what should i make this 
                     MemWrite = 1'b0; 
                     ALUSrc = 1'b1; //check if this is the right signal
