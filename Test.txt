@@ -59,45 +59,45 @@ lhu x18,0(x0)
 lbu x19,3(x0)
 
 #beq test
-beq x0,x0,6
+beq x0,x0,12
 addi x0,x0,0
 addi x0,x0,0
 
 
 #bne test
-bne x0,x1,6
+bne x0,x1,12
 addi x0,x0,0
 addi x0,x0,0
 
 
 #blt test
-blt x5,x2,6
+blt x5,x2,12
 addi x0,x0,0
 addi x0,x0,0
 
 
 #bge test
-bge x4,x1,6
+bge x4,x1,12
 addi x0,x0,0
 addi x0,x0,0
 
 #bltu test
-bltu x2,x5,6
+bltu x2,x5,12
 addi x0,x0,0
 addi x0,x0,0
 
 
 #bgeu test
-bltu x2,x30,6
+bltu x2,x30,12
 addi x0,x0,0
 addi x0,x0,0
 
 
 #jal test
-jal x20, 8
+jal x20, 16
 addi x0,x0,0
 addi x0,x0,0
-beq x0,x0,8
+beq x0,x0,16
 
 
 #jalr test
