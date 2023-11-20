@@ -32,19 +32,19 @@ module InstMem (input [7:0] addr, output [31:0] data_out);
      mem[1]=32'h0x00100093 ;
      //addi x2,x0,5
      //4
-     mem[2]= 32'h0x00500093 ;
+     mem[2]= 32'h0x00500113 ;
      //addi x3,x0,20
      //8
-     mem[3] = 32'h0x01400093;
+     mem[3] = 32'h0x01400193;
      //addi x4,x0,1787
      //12
-     mem[4] = 32'h0x6fb00093;
+     mem[4] = 32'h0x6fb00213;
      //addi x5,x0,-1234
      //16
-     mem[5] = 32'h0xb2e00093;
+     mem[5] = 32'h0xb2e00293;
      //addi x30,x0,-5
      //20
-     mem[6] = 32'h0x00320233;
+     mem[6] = 32'h0xffb00f13;
      //and x6,x4,x2
      //24
      mem[7] = 32'h0x00227333;

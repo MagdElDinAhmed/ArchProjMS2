@@ -18,7 +18,7 @@
 `define     OPCODE_SYSTEM   5'b11_100 
 `define     OPCODE_Custom   5'b10_001
 `define     OPCODE_ECALL    7'b111_001_1
-`define     OPCODE_FENCE    7'b111_001_1 
+`define     OPCODE_FENCE    7'b000_111_1 
 
 `define     F3_ADD          3'b000
 `define     F3_SLL          3'b001
