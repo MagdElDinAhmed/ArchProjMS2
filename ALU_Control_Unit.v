@@ -56,7 +56,7 @@ output reg [3:0] ALUSel
                                 ALUSel = `ALU_OR;
                         end
                         `F3_XOR: begin
-                            ALUSel = `ALU_OR;
+                            ALUSel = `ALU_XOR;
                         end
                         `F3_SLL: begin
                             ALUSel = `ALU_SLL;
