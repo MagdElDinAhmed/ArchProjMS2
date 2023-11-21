@@ -32,7 +32,7 @@ output [6:0] Seven_Seg_Out
     wire [5:0] Inst_addr;
     wire [31:0] Instruction, RegReadOut1, RegReadOut2, Immediate
     ,ALU_in_2, ALU_Out, RAM_data_out, True_RAM_data_out, Immediate_Shifted, writeData,outputMuxRF,outputMuxRF2,outputMuxRF3;
-    wire ActivateBranch,Branch,MemRead,MemtoReg,MemWrite,ALUSrc,RegWrite,MuxRFSel,AUIPCSel, Jump, JALR;
+    wire ActivateBranch,Branch,MemRead,MemtoReg,MemWrite,ALUSrc,RegWrite,MuxRFSel,AUIPCSel, Jump, JALR, loadPC;
     wire [1:0] ALUOp, SaveMethod;
     wire [3:0] ALUSel;
     integer i;
@@ -72,7 +72,7 @@ output [6:0] Seven_Seg_Out
     NBit_Reg #(.N(32)) PC(
     .clk(clk),
     .rst(rst),
-    .load(1'b1),
+    .load(loadPC),
     .D(PC_out),
     .Q(PC_in)
         );
@@ -101,7 +101,8 @@ output [6:0] Seven_Seg_Out
     .AUIPCSel(AUIPCSel), //this is the Selectline for the MuxRF2
     .SaveMethod(SaveMethod),
     .Jump(Jump),
-    .JALR(JALR)
+    .JALR(JALR),
+    .loadPC(loadPC)
     );
         //ADDED here by AF
         //AUIPC takes the current PC, not the future one ~Magd
