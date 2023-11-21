@@ -9,3 +9,5 @@ November 4th 2:39 pm: fixed a bug in AUIPC and added an ADDI guard
 November 5th 5:58 pm: created the RISC-V test program 
 November 5th 7:35 pm: fixed a bug in branchControlUnit that prevented branching from working as intended
 November 5th 9:11 pm: finished writing the test program into the instruction memory
+November 7th 5:00 pm: implemented basic forwarding into the program
+November 21st 11:48 pm: implemented part of the pipeline. Highly buggy and needs repair
