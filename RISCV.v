@@ -76,13 +76,13 @@ output [6:0] Seven_Seg_Out
     
     NBit_MUX2x1 #(.N(13))MUX_Flush1( 
     .A({Branch,MemRead,MemtoReg,MemWrite,ALUSrc,RegWrite,ALUOp,AUIPCSel,SaveMethod,Jump,JALR}),
-    .B(14'b0),
+    .B(13'b0),
     .sel(StallSignal || (ActivateBranch&Branch || Jump) ), //here it will check if there is a stall OR there is a needed flush due to branching 
     .Y(muxOutputHDU)
     
     );
     
-    NBit_Reg #(.N(219)) ID_EX(
+    NBit_Reg #(.N(224)) ID_EX(
     .clk(clk),
     .rst(rst),
     .load(1'b1),
