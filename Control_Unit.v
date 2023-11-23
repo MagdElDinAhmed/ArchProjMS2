@@ -174,7 +174,25 @@ output reg [1:0] ALUOp, SaveMethod
                        RegWrite=1'b1; //because we will write back to RF
                         //add here signals to control the new Muxes. 
                        MuxRFSel=1'b0; //chooses sel line of branched  
-                       AUIPCSel=1'b1;
+                       AUIPCSel=1'b0;
+                       SaveMethod = 2'b00;
+                       Jump = 1'b0;
+                       JALR = 1'b0;
+                       loadPC=1'b1;
+                       
+                    end
+                    
+                    `OPCODE_LUI: begin
+                        //
+                       Branch=1'b0;
+                       MemRead= 1'b0;
+                       ALUOp= 2'b11; //I couldn't fit this easily in the 01 condition
+                       MemWrite=1'b0;
+                       ALUSrc=1'b1; //check this 
+                       RegWrite=1'b1; //because we will write back to RF
+                        //add here signals to control the new Muxes. 
+                       MuxRFSel=1'b0; //chooses sel line of branched  
+                       AUIPCSel=1'b0;
                        SaveMethod = 2'b00;
                        Jump = 1'b0;
                        JALR = 1'b0;

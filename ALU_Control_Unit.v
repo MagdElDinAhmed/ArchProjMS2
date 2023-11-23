@@ -76,7 +76,9 @@ output reg [3:0] ALUSel
                         default: ALUSel = 4'b0000;
                     endcase
                 end
-                default: ALUSel = 4'b0000;
+                2'b11: begin
+                    ALUSel = 4'b00_11; //LUI
+                end
             endcase
         end
 endmodule
