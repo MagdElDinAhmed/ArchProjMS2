@@ -12,3 +12,4 @@ November 5th 9:11 pm: finished writing the test program into the instruction mem
 November 7th 5:00 pm: implemented basic forwarding into the program
 November 21st 11:48 pm: implemented part of the pipeline. Highly buggy and needs repair
 November 23rd 12:56 am: implemented the pipeline in its entirety. Bugs in the instruction implementation were noticed
+November 23rd 2:43 pm: fixed LUI and AUIPC in the pipeline
