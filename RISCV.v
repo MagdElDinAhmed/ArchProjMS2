@@ -45,12 +45,36 @@ output [6:0] Seven_Seg_Out
     wire[95:0] outputMuxFlush2;
     wire [4:0] shamt;
     wire [9:0] muxOutputFlush3;
-    //  IF/ID
     
     
-    
+    //Pipeline Wires:
+    //IF/ID:
     wire [31:0] IF_ID_PC, IF_ID_Inst, IF_ID_Unbranched_PC;
     
+    //ID/EX:
+    
+    wire [31:0] ID_EX_PC, ID_EX_RegR1, ID_EX_RegR2, ID_EX_Imm, ID_EX_Unbranched_PC, ID_EX_Inst;
+    wire ID_EX_Branch, ID_EX_MemRead, ID_EX_MemtoReg, ID_EX_MemWrite, ID_EX_ALUSrc, ID_EX_RegWrite, ID_EX_AUIPCSel, ID_EX_Jump, ID_EX_JALR;
+    wire [1:0] ID_EX_ALUOp, ID_EX_SaveMethod;
+    wire [3:0] ID_EX_Func;
+    wire [4:0] ID_EX_Rs1, ID_EX_Rs2, ID_EX_Rd;
+    wire[12:0] muxOutputHDU;
+    
+    //EX/MEM:
+    wire [31:0] EX_MEM_BranchAddOut, EX_MEM_ALU_out, EX_MEM_RegR2, EX_MEM_Unbranched_PC, EX_MEM_Inst; 
+    wire EX_MEM_Branch, EX_MEM_MemRead, EX_MEM_MemtoReg, EX_MEM_MemWrite, EX_MEM_RegWrite, EX_MEM_AUIPCSel, EX_MEM_Jump, EX_MEM_JALR, EX_MEM_ActivateBranch;
+    wire [1:0] EX_MEM_SaveMethod;
+    wire [4:0] EX_MEM_Rd;
+    wire EX_MEM_Zero,EX_MEM_Carry,EX_MEM_Overflow,EX_MEM_Sign;   
+    
+    //MEM/WB:
+    wire [31:0] MEM_WB_Mem_out, MEM_WB_ALU_out, MEM_WB_Unbranched_PC;
+    wire MEM_WB_MemtoReg,MEM_WB_RegWrite, MEM_WB_AUIPCSel;
+    wire [4:0] MEM_WB_Rd;    
+    
+    
+    //Registers:
+    //  IF/ID
     NBit_MUX2x1 #(.N(96))MUX_Flush2(  //added to flush  the IF/ID register 
     .A({PC_in,Instruction, Unbranched_PC}),
     .B(96'b0), //nop operation 
@@ -67,17 +91,12 @@ output [6:0] Seven_Seg_Out
         );
     
     //  ID/EX
-    wire [31:0] ID_EX_PC, ID_EX_RegR1, ID_EX_RegR2, ID_EX_Imm, ID_EX_Unbranched_PC, ID_EX_Inst;
-    wire ID_EX_Branch, ID_EX_MemRead, ID_EX_MemtoReg, ID_EX_MemWrite, ID_EX_ALUSrc, ID_EX_RegWrite, ID_EX_AUIPCSel, ID_EX_Jump, ID_EX_JALR;
-    wire [1:0] ID_EX_ALUOp, ID_EX_SaveMethod;
-    wire [3:0] ID_EX_Func;
-    wire [4:0] ID_EX_Rs1, ID_EX_Rs2, ID_EX_Rd;
-    wire[12:0] muxOutputHDU;
+
     
     NBit_MUX2x1 #(.N(13))MUX_Flush1( 
     .A({Branch,MemRead,MemtoReg,MemWrite,ALUSrc,RegWrite,ALUOp,AUIPCSel,SaveMethod,Jump,JALR}),
     .B(13'b0),
-    .sel(StallSignal || ((ActivateBranch&Branch) || Jump) ), //here it will check if there is a stall OR there is a needed flush due to branching 
+    .sel(StallSignal || ((ActivateBranch&EX_MEM_Branch) || EX_MEM_Jump) ), //here it will check if there is a stall OR there is a needed flush due to branching 
     .Y(muxOutputHDU)
     
     );
@@ -96,20 +115,18 @@ output [6:0] Seven_Seg_Out
     
     
     //  EX/MEM
+
     
+        
     NBit_MUX2x1 #(.N(10))MUX_Flush3( 
     .A({ID_EX_Branch, ID_EX_MemRead, ID_EX_MemtoReg, ID_EX_MemWrite, ID_EX_RegWrite, ID_EX_AUIPCSel, ID_EX_Jump, ID_EX_JALR, ID_EX_SaveMethod }),
     .B(10'b0),
-    .sel( (ActivateBranch&Branch) || Jump ), //here it will check if there is a stall OR there is a needed flush due to branching 
+    .sel( (ActivateBranch&Branch) || EX_MEM_Jump ), //here it will check if there is a stall OR there is a needed flush due to branching 
     //here undergoing assumption that 0ing the control signals will not need to 0 anything else as instruction already becomes nop
     .Y(muxOutputFlush3)
     
     );
-    wire [31:0] EX_MEM_BranchAddOut, EX_MEM_ALU_out, EX_MEM_RegR2, EX_MEM_Unbranched_PC, EX_MEM_Inst; 
-    wire EX_MEM_Branch, EX_MEM_MemRead, EX_MEM_MemtoReg, EX_MEM_MemWrite, EX_MEM_RegWrite, EX_MEM_AUIPCSel, EX_MEM_Jump, EX_MEM_JALR, EX_MEM_ActivateBranch;
-    wire [1:0] EX_MEM_SaveMethod;
-    wire [4:0] EX_MEM_Rd;
-    wire EX_MEM_Zero,EX_MEM_Carry,EX_MEM_Overflow,EX_MEM_Sign;
+
     
     NBit_Reg #(.N(180)) EX_MEM(
     .clk(clk),
@@ -123,9 +140,7 @@ output [6:0] Seven_Seg_Out
         );
     
     //  MEM/WB
-    wire [31:0] MEM_WB_Mem_out, MEM_WB_ALU_out, MEM_WB_Unbranched_PC;
-    wire MEM_WB_MemtoReg,MEM_WB_RegWrite, MEM_WB_AUIPCSel;
-    wire [4:0] MEM_WB_Rd;
+
     
     NBit_Reg #(.N(135)) MEM_WB(
     .clk(clk),
