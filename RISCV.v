@@ -177,6 +177,14 @@ output [6:0] Seven_Seg_Out
         endcase
     end
     
+    
+    reg lockDown;
+    initial begin
+        lockDown = 1;
+    end
+    always@(negedge(loadPC)) begin
+        lockDown = 0;
+    end
     //IF
     
     NBit_MUX2x1 #(.N(32))MUX_PC(
@@ -189,7 +197,7 @@ output [6:0] Seven_Seg_Out
     NBit_Reg #(.N(32)) PC(
     .clk(clk),
     .rst(rst),
-    .load((~StallSignal) && loadPC),
+    .load((~StallSignal) && lockDown),
     .D(PC_out),
     .Q(PC_in)
         );
