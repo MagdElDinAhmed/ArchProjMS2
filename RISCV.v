@@ -81,7 +81,7 @@ output [6:0] Seven_Seg_Out
     //  IF/ID
     NBit_MUX2x1 #(.N(96))MUX_Flush2(  //added to flush  the IF/ID register 
     .A({PC_in,Instruction, Unbranched_PC}),
-    .B(96'b0), //nop operation 
+    .B({PC_in,Instruction, Unbranched_PC}), //nop operation 
     .sel( (ActivateBranch&EX_MEM_Branch) || Jump ), // this is going to be 
     .Y(outputMuxFlush2)
     
@@ -100,7 +100,7 @@ output [6:0] Seven_Seg_Out
     NBit_MUX2x1 #(.N(13))MUX_Flush1( 
     .A({Branch,MemRead,MemtoReg,MemWrite,ALUSrc,RegWrite,ALUOp,AUIPCSel,SaveMethod,Jump,JALR}),
     .B(13'b0),
-    .sel(StallSignal || ((ActivateBranch&EX_MEM_Branch) || ID_EX_Jump) ), //here it will check if there is a stall OR there is a needed flush due to branching 
+    .sel(StallSignal || ((ActivateBranch&EX_MEM_Branch) || EX_MEM_Jump) ), //here it will check if there is a stall OR there is a needed flush due to branching 
     .Y(muxOutputHDU)
     
     );
@@ -236,7 +236,7 @@ output [6:0] Seven_Seg_Out
     
     
      NBit_RegFile #(.N(32)) RF(
-    .clk(clk),
+    .clk(not_clock),
     .rst(rst),
     .RegWrite(MEM_WB_RegWrite),
     .writeData(outputMuxRF2),
