@@ -30,7 +30,7 @@ output [6:0] Seven_Seg_Out
 
     );
     wire [5:0] Inst_addr;
-    wire [31:0] Instruction, RegReadOut1, RegReadOut2, Immediate
+    wire [31:0] RegReadOut1, RegReadOut2, Immediate
     ,ALU_in_2, ALU_Out, RAM_data_out, True_RAM_data_out, Immediate_Shifted, writeData,outputMuxRF,outputMuxRF2,outputMuxRF3;
     wire ActivateBranch,Branch,MemRead,MemtoReg,MemWrite,ALUSrc,RegWrite,MuxRFSel,AUIPCSel, Jump, JALR, loadPC,StallSignal;
     wire [1:0] ALUOp , SaveMethod;
@@ -39,14 +39,18 @@ output [6:0] Seven_Seg_Out
     wire [31:0] PC_in,Unbranched_PC, Branched_PC, PC_out,MuxRF2Out, Actual_Branch_PC;
     reg [12:0] Seven_Seg_Num;
     
-    wire ZeroFlag, CarryFlag, OverflowFlag, SignFlag;
+    wire ZeroFlag, CarryFlag, OverflowFlag, SignFlag, not_clock;
     wire[1:0] forwardA,forwardB;
     wire[31:0] forwardOutA,forwardOutB;
     wire[95:0] outputMuxFlush2;
     wire [4:0] shamt;
     wire [9:0] muxOutputFlush3;
     
-    
+    wire [31:0] Instruction;
+    wire Actual_MemRead;
+
+    assign Instruction = RAM_data_out;
+    assign not_clock = ~clk;
     //Pipeline Wires:
     //IF/ID:
     wire [31:0] IF_ID_PC, IF_ID_Inst, IF_ID_Unbranched_PC;
@@ -61,7 +65,7 @@ output [6:0] Seven_Seg_Out
     wire[12:0] muxOutputHDU;
     
     //EX/MEM:
-    wire [31:0] EX_MEM_BranchAddOut, EX_MEM_ALU_out, EX_MEM_RegR2, EX_MEM_Unbranched_PC, EX_MEM_Inst; 
+    wire [31:0] EX_MEM_BranchAddOut, EX_MEM_ALU_out, EX_MEM_RegR2, EX_MEM_Unbranched_PC, EX_MEM_Inst, word_addr; 
     wire EX_MEM_Branch, EX_MEM_MemRead, EX_MEM_MemtoReg, EX_MEM_MemWrite, EX_MEM_RegWrite, EX_MEM_AUIPCSel, EX_MEM_Jump, EX_MEM_JALR, EX_MEM_ActivateBranch;
     wire [1:0] EX_MEM_SaveMethod;
     wire [4:0] EX_MEM_Rd;
@@ -83,7 +87,7 @@ output [6:0] Seven_Seg_Out
     
     );
     NBit_Reg #(.N(96)) IF_ID(
-    .clk(clk),
+    .clk(not_clock),
     .rst(rst),
     .load(~StallSignal),
     .D(outputMuxFlush2),
@@ -129,7 +133,7 @@ output [6:0] Seven_Seg_Out
 
     
     NBit_Reg #(.N(180)) EX_MEM(
-    .clk(clk),
+    .clk(not_clock),
     .rst(rst),
     .load(1'b1),
     .D( { muxOutputFlush3, Actual_Branch_PC, ZeroFlag, CarryFlag, OverflowFlag, SignFlag, ALU_Out,
@@ -209,7 +213,7 @@ output [6:0] Seven_Seg_Out
     .S(Unbranched_PC)
     );
     
-    InstMem ROM (.addr (PC_in[9:2]), .data_out(Instruction));
+    //InstMem ROM (.addr (PC_in[9:2]), .data_out(Instruction));
     
     //ID
     Control_Unit #(.N(32)) CU(
@@ -323,12 +327,27 @@ output [6:0] Seven_Seg_Out
     );
     
     //MEM
+    
+     NBit_MUX2x1 #(.N(32))MUX_RAM_Addr_in(
+        .A(EX_MEM_ALU_out),
+        .B(PC_in[31:2]),
+        .sel(clk), //CHANGE this to just Branch which is now handled by the Branching control Unit instead of zeroFlag
+        .Y(word_addr) //word_addr here will be sent to data m
+     );
+     
+      NBit_MUX2x1 #(.N(1))MUX_RAM_MEMRead(
+        .A(EX_MEM_MemRead),
+        .B(1'b1),
+        .sel(clk), //CHANGE this to just Branch which is now handled by the Branching control Unit instead of zeroFlag
+        .Y(Actual_MemRead) //word_addr here will be sent to data m
+     );
+    
     DataMem RAM
     (.clk(clk),
-    .MemRead(EX_MEM_MemRead), 
+    .MemRead(Actual_MemRead), 
     .MemWrite(EX_MEM_MemWrite),
     .SaveMethod(SaveMethod),
-    .addr(EX_MEM_ALU_out),
+    .word_addr(word_addr),
     .data_in(EX_MEM_RegR2), 
     .data_out(RAM_data_out)
     );
